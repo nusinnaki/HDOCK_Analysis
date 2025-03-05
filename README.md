@@ -24,16 +24,16 @@ The aim of this project is to provide an easy-to-use pipeline for protein-protei
 
 ## Workflow
 
-1. **Generate Input PDBs**: [workflow/1_generate_input_pdbs.ipynb](step_by_step_workflow/1_generate_input_pdbs.ipynb)  
+1. **Generate Input PDBs**: [workflow/1_generate_input_pdbs.ipynb](workflow/1_generate_input_pdbs.ipynb)  
    - This notebook generates the input PDB files for receptors and ligands, preparing them for docking.
 
-2. **Queue HDock Jobs**: [workflow/2_queue_hdock_jobs](step_by_step_workflow/2_queue_hdock_jobs)  
+2. **Queue HDock Jobs**: [workflow/2_queue_hdock_jobs](workflow/2_queue_hdock_jobs)  
    - This step uses a Node.js script to submit docking jobs to the HDOCK web server. Ensure you have valid email addresses for job submissions.
 
-3. **Download HDock Results**: [workflow/3_hdock_downloader.py](step_by_step_workflow/3_hdock_downloader.py)  
+3. **Download HDock Results**: [workflow/3_hdock_downloader.py](workflow/3_hdock_downloader.py)  
    - This Python script downloads the docking results from the HDOCK server and organizes them for analysis.
 
-4. **Analyze HDock Results**: [workflow/4_hdock_analysis.ipynb](step_by_step_workflow/4_hdock_analysis.ipynb)  
+4. **Analyze HDock Results**: [workflow/4_hdock_analysis.ipynb](workflow/4_hdock_analysis.ipynb)  
    - This notebook analyzes the docking results, providing insights into protein-protein interactions.
 
 
