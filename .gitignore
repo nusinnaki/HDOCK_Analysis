@@ -1,1 +1,19 @@
 .DS_Store
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+
+# Ignore virtual environment directories
+venv/
+.env/
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore IDE-specific files (e.g., VS Code)
+.vscode/
+
+# Ignore large data files or other unnecessary files
+/data/
+*.log
+
