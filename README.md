@@ -7,10 +7,9 @@ The pipeline consists of several Python and Node.js scripts, along with tools to
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Workflow](#workflow)
-- [Scripts](#scripts)
+- [Notebooks](#notebooks)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -23,9 +22,25 @@ The aim of this project is to provide an easy-to-use pipeline for protein-protei
 - **Data Download**: Download and organize docking results for further analysis.
 - **Analysis**: Analyze the docking results using provided Python scripts.
 
-## Installation
+## Workflow
+
+1. **Generate Input PDBs**: [step_by_step_workflow/1_generate_input_pdbs.ipynb](step_by_step_workflow/1_generate_input_pdbs.ipynb)  
+   - This notebook generates the input PDB files for receptors and ligands, preparing them for docking.
+
+2. **Queue HDock Jobs**: [step_by_step_workflow/2_queue_hdock_jobs](step_by_step_workflow/2_queue_hdock_jobs)  
+   - This step uses a Node.js script to submit docking jobs to the HDOCK web server. Ensure you have valid email addresses for job submissions.
+
+3. **Download HDock Results**: [step_by_step_workflow/3_hdock_downloader.py](step_by_step_workflow/3_hdock_downloader.py)  
+   - This Python script downloads the docking results from the HDOCK server and organizes them for analysis.
+
+4. **Analyze HDock Results**: [step_by_step_workflow/4_hdock_analysis.ipynb](step_by_step_workflow/4_hdock_analysis.ipynb)  
+   - This notebook analyzes the docking results, providing insights into protein-protein interactions.
+
+5. **Fix Bugs and Resend**: [step_by_step_workflow/5_bugsfixes](step_by_step_workflow/5_bugsfixes)  
+   - This step includes both a notebook (`bugsfixes.ipynb`) and a script (`bugsfixes.py`) to identify and resend any failed docking jobs.
 
 ### Prerequisites
+
 - Python 3.x (recommended)
 - Node.js
 - Available E-Mail addresses for HDOCK Web Server (for docking job submissions)
@@ -37,3 +52,8 @@ Before running the pipeline, you need to install the required packages and depen
 #### Install Python packages:
 ```bash
 pip install -r requirements.txt
+
+cd step_by_step_workflow/2_queue_hdock_jobs
+npm install
+´´´
+
