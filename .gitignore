@@ -13,8 +13,4 @@ venv/
 # Ignore IDE-specific files (e.g., VS Code)
 .vscode/
 
-# Ignore large data files or other unnecessary files
-/data/
-*.log
-
 protocols_for_me/
