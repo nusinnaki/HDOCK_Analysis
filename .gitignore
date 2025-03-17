@@ -14,3 +14,9 @@ venv/
 .vscode/
 
 protocols_for_me/
+
+settings.json
+
+data/
+
+
