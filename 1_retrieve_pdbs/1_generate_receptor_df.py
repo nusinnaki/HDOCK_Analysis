@@ -5,9 +5,10 @@ import pandas as pd
 # ============================================================
 # Configuration Variables (Edit these as needed)
 # ============================================================
-OUTPUT_DIR = "/Users/nusin/Library/Mobile Documents/com~apple~CloudDocs/Desktop/IOV/3_Projects/PPI/1_Input_Proteins_pdbs"
+# Set the base directory to a folder named 'data' in the current working directory
+BASE_DIR = os.path.join(os.getcwd(), "data")
 OUTPUT_FILENAME = "df_receptor_HO-1.csv"
-OUTPUT_PATH = os.path.join(OUTPUT_DIR, OUTPUT_FILENAME)
+OUTPUT_PATH = os.path.join(BASE_DIR, OUTPUT_FILENAME)
 # ============================================================
 
 def get_uniprot_sequence_length(accession):
@@ -64,12 +65,10 @@ for uniprot_accession in uniprot_accessions:
         cross_refs = uniprot_data.get("uniProtKBCrossReferences", [])
         for ref in cross_refs:
             if ref.get("database") == "Ensembl":
-                # Look for the property with key "gene"
                 for prop in ref.get("properties", []):
                     if prop.get("key") == "gene":
                         ensembl_gene_id = prop.get("value")
                         break
-                # Fallback: if not found, use the reference ID
                 if ensembl_gene_id == "N/A":
                     ensembl_gene_id = ref.get("id", "N/A")
             if ref.get("database") == "Pfam":
@@ -131,7 +130,6 @@ for uniprot_accession in uniprot_accessions:
             if pdb_response.status_code == 200:
                 pdb_data = pdb_response.json()
                 method = pdb_data.get("rcsb_entry_info", {}).get("experimental_method", "N/A")
-                # Extract resolution using the "resolution_combined" field
                 resolution = pdb_data.get("rcsb_entry_info", {}).get("resolution_combined", ["N/A"])[0]
                 if resolution != "N/A":
                     resolution = f"{resolution} Å"
@@ -142,9 +140,7 @@ for uniprot_accession in uniprot_accessions:
                     entity_response = requests.get(entity_url)
                     if entity_response.status_code == 200:
                         entity_data = entity_response.json()
-                        # Concatenate chain IDs with '/'
                         chain = "/".join(entity_data.get("rcsb_polymer_entity_container_identifiers", {}).get("auth_asym_ids", []))
-                        # Use the length of the canonical sequence (if available) as a proxy for Positions
                         seq = entity_data.get("entity_poly", {}).get("pdbx_seq_one_letter_code_can", "N/A")
                         positions_range = f"1-{len(seq)}" if seq != "N/A" else "N/A"
     
@@ -166,19 +162,9 @@ for uniprot_accession in uniprot_accessions:
     else:
         print(f"Error {response.status_code}: {response.text}")
     
-    # Now add the AlphaFold predicted structure row for this accession
+    # Add the AlphaFold predicted structure row for this accession
     alphafold_id = f"AF-{uniprot_accession}-F1"
-    alphafold_url = f"https://alphafold.ebi.ac.uk/files/{alphafold_id}.pdb"
     alphafold_method = "Predicted"
-    alphafold_resolution = ""
-    alphafold_chain = ""
-    alphafold_positions = ""
-    
-    af_response = requests.get(alphafold_url)
-    if af_response.status_code == 200:
-        # Optionally add parsing logic for the AlphaFold structure if needed
-        pass
-    
     new_row_af = pd.DataFrame({
         "protein_name": [protein_name],
         "short_name": [short_name],
@@ -188,10 +174,10 @@ for uniprot_accession in uniprot_accessions:
         "pfam_ID": [pfam_ids],
         "identifier": [alphafold_id],
         "method": [alphafold_method],
-        "resolution": [alphafold_resolution],
-        "chain": [alphafold_chain],
+        "resolution": [""],
+        "chain": [""],
         "sequence_length": [sequence_length],
-        "positions": [alphafold_positions]
+        "positions": [""]
     })
     df = pd.concat([df, new_row_af], ignore_index=True)
 

@@ -6,7 +6,7 @@ from typing import Tuple
 # ============================================================
 # Configuration Variables (Edit these as needed)
 # ============================================================
-BASE_DIR = "/Users/nusin/Library/Mobile Documents/com~apple~CloudDocs/Desktop/IOV/3_Projects/PPI/1_Input_Proteins_pdbs"
+BASE_DIR = os.path.join(os.getcwd(), "data")
 ALL_LIGANDS_CSV = os.path.join(BASE_DIR, "df_all_ligands.csv")
 DOWNLOADED_LIGANDS_CSV = os.path.join(BASE_DIR, "df_downloaded_ligands.csv")
 LIGAND_PDB_DIR = os.path.join(BASE_DIR, "ligand_pdbs")

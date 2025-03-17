@@ -1,3 +1,4 @@
+import os
 import re
 import asyncio
 import aiohttp
@@ -8,8 +9,8 @@ import unicodedata  # To normalize Unicode characters
 # ============================================================
 # Configuration Variables (Edit these as needed)
 # ============================================================
-LIGAND_EXCEL_FILE_PATH = "/Users/nusin/Library/Mobile Documents/com~apple~CloudDocs/Desktop/IOV/3_Projects/PPI/0_Proteins_of_Interest/list of 75 proteins of interest.xlsx"
-OUTPUT_CSV_FILE_PATH = "/Users/nusin/Library/Mobile Documents/com~apple~CloudDocs/Desktop/IOV/3_Projects/PPI/1_Input_Proteins_pdbs/df_all_ligands.csv"
+LIGAND_EXCEL_FILE_PATH = os.path.join(os.getcwd(), "data", "list_75_proteins.xlsx")
+OUTPUT_CSV_FILE_PATH = os.path.join(os.getcwd(), "data", "df_all_ligands.csv")
 CONCURRENT_TASKS_LIMIT = 10
 TIMEOUT = 10  # Seconds
 
