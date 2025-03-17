@@ -8,13 +8,12 @@ from typing import Tuple
 # ============================================================
 BASE_DIR = "/Users/nusin/Library/Mobile Documents/com~apple~CloudDocs/Desktop/IOV/3_Projects/PPI/1_Input_Proteins_pdbs"
 ALL_LIGANDS_CSV = os.path.join(BASE_DIR, "df_all_ligands.csv")
-FILTERED_LIGANDS_CSV = os.path.join(BASE_DIR, "df_filtered_ligands.csv")
 DOWNLOADED_LIGANDS_CSV = os.path.join(BASE_DIR, "df_downloaded_ligands.csv")
 LIGAND_PDB_DIR = os.path.join(BASE_DIR, "ligand_pdbs")
 # ============================================================
 
 # -----------------------------
-# Filtering Section (unchanged)
+# Filtering Section
 # -----------------------------
 
 def parse_position_length(position: str) -> int:
@@ -53,17 +52,14 @@ def filter_ligand_structures(ligand_df: pd.DataFrame) -> pd.DataFrame:
     
     return pd.concat(filtered_results).reset_index(drop=True).fillna('N/A')
 
-def apply_filters_and_save():
-    input_path = ALL_LIGANDS_CSV
-    output_path = FILTERED_LIGANDS_CSV
-    
-    df = pd.read_csv(input_path)
+def apply_filters() -> pd.DataFrame:
+    """Read all ligands CSV, apply filtering, and return the filtered DataFrame in memory."""
+    df = pd.read_csv(ALL_LIGANDS_CSV)
     filtered_df = filter_ligand_structures(df)
-    filtered_df.to_csv(output_path, index=False)
-    print(f"✅ Saved filtered data ({len(filtered_df)} rows) to {output_path}")
+    return filtered_df
 
 # -----------------------------
-# Download Section (modified)
+# Download Section
 # -----------------------------
 
 def download_pdb(identifier: str, output_dir: str) -> Tuple[bool, str]:
@@ -97,24 +93,22 @@ def verify_downloads(df: pd.DataFrame, output_dir: str) -> pd.DataFrame:
     )
     return df
 
-def download_and_update():
-    filtered_path = FILTERED_LIGANDS_CSV
+def download_and_update(filtered_df: pd.DataFrame):
+    """Download PDB files for the filtered identifiers and save the final DataFrame."""
     output_dir = LIGAND_PDB_DIR
     final_output_path = DOWNLOADED_LIGANDS_CSV
     
     os.makedirs(output_dir, exist_ok=True)
-    
-    df = pd.read_csv(filtered_path)
     failed = []
     
-    for identifier in df['identifier'].dropna().unique():
+    for identifier in filtered_df['identifier'].dropna().unique():
         success, message = download_pdb(identifier, output_dir)
         print(message)
         if not success:
             failed.append(identifier)
     
-    df = verify_downloads(df, output_dir)
-    df.to_csv(final_output_path, index=False)
+    filtered_df = verify_downloads(filtered_df, output_dir)
+    filtered_df.to_csv(final_output_path, index=False)
     print(f"\n✅ Final data saved to {final_output_path}")
     
     if failed:
@@ -127,5 +121,5 @@ def download_and_update():
 # Main Execution
 # -----------------------------
 if __name__ == "__main__":
-    apply_filters_and_save()
-    download_and_update()
+    filtered_df = apply_filters()
+    download_and_update(filtered_df)

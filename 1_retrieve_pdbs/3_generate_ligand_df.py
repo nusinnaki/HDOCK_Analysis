@@ -72,7 +72,8 @@ async def process_ligand(session, row):
     results_list = []
     # Use ligand_df values as defaults
     accession = row["Accession"]
-    gene_symbol = row["Gene Symbol"]
+    # Preserve the full gene symbol string from the CSV
+    input_gene_symbol = row["Gene Symbol"]
     ensembl_gene_id = row["Ensembl Gene ID"]
     pfam_ids = row["Pfam IDs"]
 
@@ -85,7 +86,7 @@ async def process_ligand(session, row):
         results_list.append({
             "protein_name": "N/A",
             "short_name": "N/A",
-            "gene_symbol": gene_symbol,
+            "gene_symbol": input_gene_symbol,
             "gene_ID": ensembl_gene_id,
             "accession": accession,
             "pfam_ID": pfam_ids,
@@ -98,7 +99,7 @@ async def process_ligand(session, row):
         })
         return results_list
 
-    # Get UniProt JSON data to fetch protein_name and short_name (and optionally update gene_symbol, gene_ID, pfam_ID)
+    # Get UniProt JSON data to fetch protein_name and short_name (and update gene_symbol if available)
     uniprot_json = await get_uniprot_json_data(accession, session)
     if uniprot_json:
         protein_description = uniprot_json.get("proteinDescription", {})
@@ -106,9 +107,15 @@ async def process_ligand(session, row):
         protein_name = recommended_name.get("fullName", {}).get("value", "N/A")
         short_names = recommended_name.get("shortNames", [])
         short_name = short_names[0]["value"] if short_names else "N/A"
-        # Update gene symbol if available
+
+        # Preserve gene symbol(s): combine those from the input file (which may contain multiple values separated by ";")
+        # with any gene names obtained from the JSON.
         genes = uniprot_json.get("genes", [])
-        gene_symbol = genes[0].get("geneName", {}).get("value", gene_symbol) if genes else gene_symbol
+        input_gene_symbols = [s.strip() for s in input_gene_symbol.split(';')] if input_gene_symbol else []
+        json_gene_symbols = [g.get("geneName", {}).get("value", "").strip() for g in genes if g.get("geneName", {}).get("value", "")]
+        # Combine both lists, preserving order and uniqueness
+        combined_gene_symbols = list(dict.fromkeys(input_gene_symbols + json_gene_symbols))
+        gene_symbol = "; ".join(combined_gene_symbols) if combined_gene_symbols else input_gene_symbol
 
         # Extract Ensembl gene ID and Pfam IDs from cross-references
         ensembl_gene_id_new = "N/A"
@@ -130,6 +137,7 @@ async def process_ligand(session, row):
     else:
         protein_name = "N/A"
         short_name = "N/A"
+        gene_symbol = input_gene_symbol
 
     # Build the JSON query for experimental structures from RCSB
     query = {
@@ -190,8 +198,10 @@ async def process_ligand(session, row):
                 for entry in result.get("result_set", []):
                     raw_id = entry["identifier"]
                     normalized = unicodedata.normalize("NFKC", raw_id).strip()
-                    if re.fullmatch(r"[A-Za-z0-9]{4}", normalized):
-                        pdb_ids.append(normalized.upper())
+                    # Remove all whitespace (including non-breaking spaces) from within the identifier.
+                    normalized_no_space = re.sub(r"\s+", "", normalized)
+                    if re.fullmatch(r"[A-Za-z0-9]{4}", normalized_no_space):
+                        pdb_ids.append(normalized_no_space.upper())
 
                 if not pdb_ids:
                     print(f"No valid PDB IDs found for {accession}.")
@@ -329,15 +339,27 @@ async def fetch_ligand_structures():
     return all_results
 
 # -----------------------------
-# Step 5. Main async function to get data and save results
+# Step 5. Main async function to get data, filter invalid identifiers, and save results
 # -----------------------------
 async def main():
     ligand_results = await fetch_ligand_structures()
+    
+    # Before creating the dataset and printing the CSV,
+    # check that identifiers (from RCSB, i.e. non-predicted rows) are exactly 4 characters.
+    filtered_results = []
+    for row in ligand_results:
+        # Skip checking for rows marked as 'N/A' or those from AlphaFold (Predicted)
+        if row["identifier"] not in ["N/A", "rcsb"] and row["method"] != "Predicted":
+            if not re.fullmatch(r"[A-Za-z0-9]{4}", row["identifier"]):
+                print(f"Warning: Identifier {row['identifier']} for accession {row['accession']} does not have exactly 4 characters. Skipping this row.")
+                continue
+        filtered_results.append(row)
+    
     columns = [
         "protein_name", "short_name", "gene_symbol", "gene_ID", "accession", 
         "pfam_ID", "identifier", "method", "resolution", "chain", "sequence_length", "positions"
     ]
-    df_ligand_structures = pd.DataFrame(ligand_results, columns=columns)
+    df_ligand_structures = pd.DataFrame(filtered_results, columns=columns)
     print(df_ligand_structures.head())
     df_ligand_structures.to_csv(OUTPUT_CSV_FILE_PATH, index=False)
     print(f"Saved ligand structures to {OUTPUT_CSV_FILE_PATH}")

@@ -9,8 +9,8 @@ const axios = require("axios");
 const FormData = require("form-data");
 
 // Directories and file paths
-const receptorDir = path.join(__dirname, "receptor_pdbs"); // Directory with receptor PDB files
-const ligandDir = path.join(__dirname, "ligand_pdbs");       // Directory with ligand PDB files
+const receptorDir = path.join(__dirname, "../data/receptor_pdbs");
+const ligandDir = path.join(__dirname, "../data/ligand_pdbs");
 const outputCsv = path.join(__dirname, "responses.csv");       // Output CSV file for responses
 
 // Upload URL for HDOCK

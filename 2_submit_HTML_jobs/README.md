@@ -10,119 +10,78 @@ This guide explains how to set up and execute the Node.js scripts for uploading 
   node -v
 
 
-Script Architecture Overview
-File Handling System
-The script processes structural biology files from two designated directories:
+## Script Overview
+# File Handling
+Input Directories
 
-Receptor Directory: Default path ../data/receptor_pdbs/ containing PDB-format files
+Receptors: ../data/receptor_pdbs/ (PDB files)
 
-Ligand Directory: Default path ../data/ligand_pdbs/ with ligand structure files
+Ligands: ../data/ligand_pdbs/ (PDB files)
 
-The system supports both traditional PDB files from the RCSB database and custom structural predictions from AlphaFold DB. Batch processing enables simultaneous handling of multiple receptor-ligand pairs.
+# File Processing
 
-Submission Workflow
-Request Preparation Phase
-For each receptor-ligand combination, the script:
+Batch processing of structure files
 
-Generates multipart/form-data POST requests
+Supports PDB and custom AlphaFold-derived structures
 
-Implements email rotation strategy (alternates between 10 submissions)
+## Submission Workflow
+#Request Preparation
 
-Validates file integrity before submission
+Generates POST requests for each receptor-ligand pair
 
-Job Execution Process
-Core submission functionality uses HTTP POST:
+Attaches files as multipart/form-data
+
+Email rotation every 10 submissions
+
+# Job Submission
 
 javascript
 Copy
-const response = await fetch('http://hdock.phys.hust.edu.cn/submit', {
+fetch('http://hdock.phys.hust.edu.cn/submit', {
   method: 'POST',
-  body: formData,
-  headers: {
-    'User-Agent': 'HDOCK Automation Client/1.0'
-  }
+  body: formData
 });
-The system includes error handling with:
+Error handling for failed submissions
 
-Automatic retry mechanism for failed submissions
+Automatic retry mechanism
 
-Network timeout protection (default: 30 seconds)
+# Logging & Tracking
 
-Concurrent request throttling
+CSV output (responses.csv) contains:
 
-Results Tracking
-All server responses log to responses.csv with:
+Column	Description
+Timestamp	Submission time
+ReceptorFile	PDB filename
+LigandFile	PDB filename
+HDOCK_Response	Server response text
 
-Timestamp of submission
+📅 Data Retention Policy: Results automatically deleted after 14 days
+📧 Support: hdock@hust.edu.cn
 
-Receptor and ligand filenames
-
-Email used for notification
-
-Raw server response
-
-Job status indicators
-
-Web Interface Components
-Job Status Dashboard
-Real-time monitoring interface features:
-
+## Web Interface Features
+# User Dashboard
 html
 Copy
-<!-- Status display container -->
-<div class="job-monitor">
-  <h2>Job Status: <span id="jobStatus">QUEUED</span></h2>
-  <div class="refresh-counter">
-    Auto-refreshing in <span id="countdown">10</span> seconds
-  </div>
+<div class="status-board">
+  <h2>Job job_id: <span class="status">QUEUED</span></h2>
+  <div class="loader"></div>
+  <p>Auto-refreshing in 10 seconds...</p>
 </div>
 Run HTML
-Key functionality:
+Real-time status updates
 
-Automatic page refresh every 10 seconds
+Browser notifications
 
-Browser notification integration
+Mobile-responsive design
 
-Mobile-responsive layout using CSS Grid
 
-Persistent session storage for interrupted connections
+## New Submission
+You can re-run the code. OR if you have mistakes, use the bugsfixes.py to analyse which job_IDs were problematic, and recreate your folders.
 
-Navigation System
-User interface includes:
 
-Bookmarkable job-specific URLs
-
-Direct result sharing via generated links
-
-Quick-access controls:
-
-New submission button
-
-Previous results archive
-
-Documentation portal
-
-Maintenance Protocols
-Data Retention Policy
-Successful job results: 14-day storage
-
-Failed submissions: 48-hour error log retention
-
-Automated cleanup scheduler
-
-Error Recovery
-For failed submissions:
-
-Review errors.log for specific failure codes
-
-Use bugfixes.py utility to analyze problematic Job IDs
-
-Rebuild submission queue with missing pairs
-
-Reference Documentation
-Resource	Description	URL
-RCSB PDB	Protein Data Bank repository	https://www.rcsb.org
-AlphaFold DB	AI-predicted protein structures	https://alphafold.ebi.ac.uk
-HDOCK Server	Docking service endpoint	http://hdock.phys.hust.edu.cn
-Node.js Docs	Runtime documentation	https://nodejs.org/en/docs
-Technical Support: hdock@hust.edu.cn | Response time: 24-48 business hours
+## References
+# Databases & Links
+Protein Data Bank (RCSB)	https://www.rcsb.org
+AlphaFold DB	https://alphafold.ebi.ac.uk
+HDOCK Server	http://hdock.phys.hust.edu.cn
+Node.js Docs	https://nodejs.org/en/docs
