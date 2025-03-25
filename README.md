@@ -1,10 +1,10 @@
-# Protein-Protein Interaction Analysis: HMOX1 and Your Protein of Interest
+# Protein-Protein Interaction Analysis: Target Protein (Receptor) vs list of Your Proteins of Interest
 
 ## Introduction
 
 Protein-protein interactions (PPIs) are central to understanding cellular mechanisms and drug discovery. In many cases, researchers face challenges when setting up numerous docking experiments due to the scarcity of easy-to-use tools that can handle large datasets. This project was born out of the need for an efficient pipeline to perform multiple docking experiments, ultimately leading to the adoption of HDOCK as a robust docking platform.
 
-This repository provides a comprehensive pipeline for analyzing protein-protein interactions between HMOX1 and any protein of your interest. It covers the entire workflow: from retrieving and preparing receptor and ligand structures to submitting docking jobs and analyzing the docking results.
+This repository provides a comprehensive pipeline for analyzing protein-protein interactions between your target (receptor) protein and a list proteins you are interested in. It covers the entire workflow: from retrieving and preparing receptor and ligand structures to submitting docking jobs and analyzing the docking results.
 
 ## Project Overview
 

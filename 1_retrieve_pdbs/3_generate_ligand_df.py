@@ -177,7 +177,7 @@ async def process_ligand(session, row):
             text = await response.text()
             if not text.strip():
                 print(f"Empty response for accession {accession}. Skipping experimental structures.")
-                # Add a row for RCSB with N/A values
+                # Add a row for RCSB with N/A values; using "no_pdb" now instead of "rcsb"
                 results_list.append({
                     "protein_name": protein_name,
                     "short_name": short_name,
@@ -185,7 +185,7 @@ async def process_ligand(session, row):
                     "gene_ID": ensembl_gene_id,
                     "accession": accession,
                     "pfam_ID": pfam_ids,
-                    "identifier": "rcsb",
+                    "identifier": "no_pdb",
                     "method": "N/A",
                     "resolution": "N/A",
                     "chain": "N/A",
@@ -213,7 +213,7 @@ async def process_ligand(session, row):
                         "gene_ID": ensembl_gene_id,
                         "accession": accession,
                         "pfam_ID": pfam_ids,
-                        "identifier": "rcsb",
+                        "identifier": "no_pdb",
                         "method": "N/A",
                         "resolution": "N/A",
                         "chain": "N/A",
@@ -275,7 +275,7 @@ async def process_ligand(session, row):
             "gene_ID": ensembl_gene_id,
             "accession": accession,
             "pfam_ID": pfam_ids,
-            "identifier": "rcsb",
+            "identifier": "no_pdb",
             "method": "N/A",
             "resolution": "N/A",
             "chain": "N/A",
@@ -350,7 +350,7 @@ async def main():
     filtered_results = []
     for row in ligand_results:
         # Skip checking for rows marked as 'N/A' or those from AlphaFold (Predicted)
-        if row["identifier"] not in ["N/A", "rcsb"] and row["method"] != "Predicted":
+        if row["identifier"] not in ["no_pdb"] and row["method"] != "Predicted":
             if not re.fullmatch(r"[A-Za-z0-9]{4}", row["identifier"]):
                 print(f"Warning: Identifier {row['identifier']} for accession {row['accession']} does not have exactly 4 characters. Skipping this row.")
                 continue
